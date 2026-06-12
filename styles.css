@@ -483,3 +483,53 @@ input:focus, textarea:focus {
     color: var(--accent-danger);
     transform: scale(1.1);
 }
+
+/* ==========================================================================
+   MOBILE RESPONSIVE OVERRIDE (For screens smaller than 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+    
+    /* 1. Fix the Header Layout */
+    .main-header {
+        flex-direction: column; /* Stack the logo, form, and cart vertically */
+        gap: 16px;
+        padding: 16px;
+        height: auto;           /* Let the header expand naturally */
+    }
+
+    /* 2. Fix the Authentication Form inside the header */
+    .main-header form, 
+    .auth-container { 
+        display: flex;
+        flex-direction: column; /* Stack Email, Password, and Sign In vertically */
+        width: 100%;            /* Force it to take up full mobile width */
+        gap: 10px;
+    }
+
+    /* 3. Make inputs easy to tap on mobile */
+    .main-header input {
+        width: 100% !important;
+        height: 44px;           /* Minimum mobile tap target standard */
+        padding: 10px;
+        font-size: 16px;        /* Prevents iOS from auto-zooming on focus */
+    }
+
+    /* 4. Align the Sign In and Cart buttons nicely */
+    .main-header button,
+    .cart-badge {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+        height: 44px;
+    }
+
+    /* 5. Clean up the Product Section layout padding */
+    .store-container {
+        padding: 12px;
+    }
+
+    .product-grid {
+        grid-template-columns: 1fr; /* Explicitly forces a single clean column */
+        gap: 16px;
+    }
+}

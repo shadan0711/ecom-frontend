@@ -555,11 +555,20 @@ async function createNewProduct(event) {
 
         // Reset admin module state back to standard configuration mode
         editingProductId = null;
-        document.getElementById('add-product-form').reset();
-        document.querySelector('#admin-panel h2').innerText = "Inventory Control";
-        document.querySelector('#add-product-form button[type="submit"]').innerText = "Publish To Catalog";
-        document.querySelector('#add-product-form button[type="submit"]').style.backgroundColor = "var(--accent-success)";
-        document.querySelector('#add-product-form button[type="submit"]').style.color = "white";
+        const productForm = document.getElementById('add-product-form');
+        if (productForm) productForm.reset();
+
+        const adminHeading = document.querySelector('#admin-panel h2');
+        if (adminHeading) {
+            adminHeading.innerText = "Inventory Control";
+        }
+
+        const submitBtn = document.querySelector('#add-product-form button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.innerText = "Publish To Catalog";
+            submitBtn.style.backgroundColor = "var(--accent-success)";
+            submitBtn.style.color = "white";
+        }
 
         fetchProducts(); // Refresh storefront layout values
 
@@ -568,8 +577,6 @@ async function createNewProduct(event) {
     }
 }
 
-// Run Startup Applications Loops
-// --- 14. PERSISTENT APPLICATION INITIALIZATION ---
 
 // Run full boot logic execution loop
 bootApplication();

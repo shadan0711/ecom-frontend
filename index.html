@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Commerce Store</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="header-brand">
+            <span class="logo-icon">✦</span>
+            <h1>DevStore</h1>
+        </div>
+        <nav class="auth-navigation">
+            <div id="auth-status">
+                <div id="login-view" class="auth-inline-form">
+                    <input type="email" id="login-email" placeholder="Email address" required>
+                    <input type="password" id="login-password" placeholder="Password" required>
+                    <button class="btn btn-primary" onclick="login()">Sign In</button>
+                    <span class="auth-switch-text">New? <a href="#" onclick="switchAuthMode('register')">Create
+                            Account</a></span>
+                </div>
+
+                <div id="register-view" class="auth-inline-form hidden">
+                    <input type="text" id="reg-name" placeholder="Full Name" required>
+                    <input type="email" id="reg-email" placeholder="Email address" required>
+                    <input type="password" id="reg-password" placeholder="Password" required>
+                    <button class="btn btn-success" onclick="register()">Sign Up</button>
+                    <span class="auth-switch-text">Have an account? <a href="#" onclick="switchAuthMode('login')">Sign
+                            In</a></span>
+                </div>
+
+                <div id="user-logged-in" class="auth-profile hidden">
+                    <span class="avatar">U</span>
+                    <span class="user-meta">Status: <strong id="user-display-name">Online</strong></span>
+                    <button class="btn btn-danger" onclick="logout()">Sign Out</button>
+                </div>
+            </div>
+            <button id="cart-toggle-btn" class="btn btn-secondary cart-badge-btn" onclick="toggleCart()">
+                <span>Cart</span>
+                <span id="cart-count" class="badge">0</span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="store-container">
+        <div class="catalog-area">
+            <div id="admin-panel" class="hidden"
+                style="margin-bottom: 40px; background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px;">
+
+                <style>
+                    .admin-tab-btn {
+                        flex: 1;
+                        font-size: 14px;
+                        padding: 12px;
+                        border-radius: 8px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        transition: 0.2s;
+                    }
+
+                    .admin-tab-active {
+                        background: var(--accent-primary);
+                        border: 2px solid var(--accent-primary);
+                        color: white;
+                    }
+
+                    .admin-tab-inactive {
+                        background: transparent;
+                        border: 2px solid #6b7280;
+                        color: #9ca3af;
+                    }
+                </style>
+
+                <div
+                    style="display: flex; gap: 12px; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 16px;">
+                    <button onclick="switchAdminTab('inventory')" id="tab-btn-inventory"
+                        class="admin-tab-btn admin-tab-active">📦 Inventory Control</button>
+
+                    <button onclick="switchAdminTab('orders')" id="tab-btn-orders"
+                        class="admin-tab-btn admin-tab-inactive">🚚 Fulfillment Queue</button>
+                </div>
+
+                <div id="admin-tab-inventory">
+                    <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 16px;">Publish a new product
+                        item directly into the MongoDB ecosystem.</p>
+                    <form id="add-product-form" onsubmit="createNewProduct(event)">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <input type="text" id="prod-name" placeholder="Product Name" required>
+                            <input type="number" id="prod-price" placeholder="Price (₹)" required>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                            <input type="number" id="prod-stock" placeholder="Initial Stock" required>
+                            <input type="file" id="prod-image" accept="image/*" required
+                                style="padding: 8px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+                        </div>
+                        <textarea id="prod-desc" placeholder="Product Description..." rows="3" required
+                            style="width: 100%; margin-bottom: 16px;"></textarea>
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">Publish To Catalog</button>
+                    </form>
+                </div>
+
+                <div id="admin-tab-orders" class="hidden">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <p style="color: var(--text-muted); font-size: 14px;">Process and update incoming customer
+                            purchases.</p>
+                        <button onclick="fetchAdminOrders()"
+                            style="background: none; border: 1px solid var(--border-color); color: var(--text-primary); padding: 4px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">↻
+                            Refresh Queue</button>
+                    </div>
+
+                    <div id="admin-orders-queue"
+                        style="max-height: 500px; overflow-y: auto; padding-right: 8px; display: flex; flex-direction: column; gap: 16px;">
+                        <p class="empty-text">No orders placed yet.</p>
+                    </div>
+                </div>
+
+            </div>
+
+            <section class="products-section">
+                <div class="section-header">
+                    <h2>Curated Hardware</h2>
+                    <p>High-performance developer gear, tracked in real-time.</p>
+                </div>
+                <div id="product-container" class="product-grid">
+                    <p class="loading-text">Loading store collection...</p>
+                </div>
+            </section>
+        </div>
+
+        <aside id="cart-sidebar" class="cart-sidebar hidden">
+            <div class="sidebar-header">
+                <h2>Your Cart</h2>
+                <button class="close-sidebar-btn" onclick="toggleCart()">✕</button>
+            </div>
+            <div id="cart-items-container" class="cart-scroll-area">
+                <p class="empty-text">Your cart is empty.</p>
+            </div>
+            <div class="cart-footer">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span class="total-price">₹<span id="cart-total">0.00</span></span>
+                </div>
+                <button id="checkout-btn" class="btn btn-primary btn-block" onclick="checkoutOrder()" disabled>
+                    Complete Secure Checkout
+                </button>
+            </div>
+        </aside>
+    </main>
+
+    <div id="details-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <button class="modal-close-btn" onclick="closeDetailsModal()">✕</button>
+            <div id="modal-product-data"></div>
+        </div>
+    </div>
+    <div id="toast-container"></div>
+    <script src="app.js"></script>
+
+    <div id="checkout-modal" class="modal-overlay hidden">
+        <div class="modal-content" style="max-width: 480px;">
+            <h2 style="margin-bottom: 6px;">Secure Order Checkout</h2>
+
+            <div
+                style="background-color: rgba(234, 179, 8, 0.1); border: 1px solid #eab308; color: #eab308; padding: 10px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-bottom: 20px; text-align: center;">
+                💵 Payment Method Notice: We only accept Cash on Delivery (COD) now.
+            </div>
+
+            <form id="checkout-form" onsubmit="executeFinalOrder(event)">
+                <div id="address-entry-fields">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                        <div>
+                            <label style="font-size: 12px; color: var(--text-muted);">House / Flat No.*</label>
+                            <input type="text" id="chk-house" style="width:100%; padding:10px; margin-top:4px;"
+                                required>
+                        </div>
+                        <div>
+                            <label style="font-size: 12px; color: var(--text-muted);">Landmark</label>
+                            <input type="text" id="chk-landmark" style="width:100%; padding:10px; margin-top:4px;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="font-size: 12px; color: var(--text-muted);">Street Address / Locality*</label>
+                        <input type="text" id="chk-address" style="width:100%; padding:10px; margin-top:4px;" required>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="font-size: 12px; color: var(--text-muted);">Mobile Phone Number (10
+                            digits)*</label>
+                        <input type="tel" id="chk-phone" pattern="[0-9]{10}" placeholder="e.g. 9876543210"
+                            style="width:100%; padding:10px; margin-top:4px;" required>
+                    </div>
+                </div>
+
+                <div id="address-saved-fields" class="hidden"
+                    style="background: rgba(255,255,255,0.02); border: 1px dashed var(--border-color); padding: 14px; border-radius: 6px; margin-bottom: 20px;">
+                    <p style="color: var(--accent-success); font-weight: 600; margin-bottom: 6px; font-size: 14px;">📦
+                        Shipping to your saved address:</p>
+                    <p id="saved-profile-summary-text"
+                        style="font-size: 13px; color: var(--text-muted); line-height: 1.4;"></p>
+                    <button type="button" onclick="resetSavedProfileView()"
+                        style="background: none; border: none; color: var(--accent-danger); font-size: 11px; cursor: pointer; text-decoration: underline; margin-top: 8px; padding: 0;">Use
+                        a different shipping destination</button>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeCheckoutModal()">Cancel</button>
+                    <button type="submit" id="final-checkout-submit-btn" class="btn btn-primary">Confirm & Place COD
+                        Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -200,7 +200,7 @@ function displayProducts(products) {
 
     productContainer.innerHTML = products.map(product => `
         <div class="product-card">
-            ${product.imageUrl ? `<img src="${SERVER_URL}${product.imageUrl.replace('http://localhost:5001', '')}">` : ''}
+            ${product.imageUrl ? `<img src="${SERVER_URL}${product.imageUrl.replace('http://localhost:5001', '')}" class="product-card-img" alt="${product.name}">` : ''}
             <div style="margin-top: 12px; margin-bottom: 16px;">
                 <h3>${product.name}</h3>
                 <div class="price">₹${product.price.toFixed(2)}</div>
